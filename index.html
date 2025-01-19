@@ -1,30 +1,64 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<style>
-			body { margin: 0; }
-		</style>
-	</head>
-	<body>
-		<script type="module">
-			import * as THREE from 'https://cdn.jsdelivr.net/npm/three/build/three.module.js';
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js 3D Model Scene</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Подключаем библиотеку Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Подключаем GLTFLoader для загрузки 3D моделей в формате GLB -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
 
-			// Наш Javascript будет здесь..
-			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-			const loader = new GLTFLoader();
+    <script>
+        // Создаем сцену, камеру и рендерер
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-	loader.load( 'scene.gltf', function ( gltf ) {
+        // Добавляем освещение
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // мягкий белый свет
+        scene.add(ambientLight);
 
-	scene.add( gltf.scene );
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1).normalize();
+        scene.add(directionalLight);
 
-	}, undefined, function ( error ) {
+        // Загружаем 3D модель
+        const loader = new THREE.GLTFLoader();
+        loader.load('cartoon_low_poly_rat_pack.glb', function (gltf) {
+            const model = gltf.scene;
+            scene.add(model);
+            model.position.set(0, 0, 0); // Позиционируем модель
+            model.scale.set(1, 1, 1); // Масштабируем модель
+        }, undefined, function (error) {
+            console.error(error);
+        });
 
-	console.error( error );
+        // Устанавливаем позицию камеры
+        camera.position.z = 5;
 
-} );
-			
-		</script>
-	</body>
+        // Анимация
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Обработка изменения размера окна
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
 </html>
