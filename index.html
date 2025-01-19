@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js 3D Model Scene</title>
+    <title>Three.js Animated 3D Model</title>
     <style>
         body { margin: 0; }
         canvas { display: block; }
@@ -38,20 +38,26 @@
             scene.add(model);
             model.position.set(0, 0, 0); // Позиционируем модель
             model.scale.set(1, 1, 1); // Масштабируем модель
+
+            // Анимация модели
+            const mixer = new THREE.AnimationMixer(model);
+            gltf.animations.forEach((clip) => {
+                mixer.clipAction(clip).play();
+            });
+
+            // Анимация в основном цикле
+            function animate() {
+                requestAnimationFrame(animate);
+                mixer.update(0.01); // Обновляем анимацию
+                renderer.render(scene, camera);
+            }
+            animate();
         }, undefined, function (error) {
             console.error(error);
         });
 
         // Устанавливаем позицию камеры
         camera.position.z = 5;
-
-        // Анимация
-        function animate() {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        }
-
-        animate();
 
         // Обработка изменения размера окна
         window.addEventListener('resize', () => {
